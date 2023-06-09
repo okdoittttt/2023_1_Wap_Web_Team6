@@ -11,7 +11,7 @@ const Textarea = styled.textarea`
     border: 1px solid var(--gray-color);
     border-radius: 3px;
     padding: 5px;
-    width: 20rem;
+    width: 25rem;
     height: 5rem;
 `;
 const Input = styled.input`
@@ -19,7 +19,7 @@ const Input = styled.input`
   font-size: 16px;
   border: 1px solid var(--gray-color);
   border-radius: 3px;
-  width: 20rem;
+  width: 25rem;
   margin-bottom: 0.5rem;
 `;
 const SeqData = styled.div`
@@ -61,7 +61,6 @@ const RecipeSeq = (props: RecipeSeqProps) => {
                     <input type="file"
                     name="recipe_img"
                     onChange={(e) => props.handleImgUpload(e)}
-                    required
                     />
 
                     <TimerContainer>
@@ -75,7 +74,7 @@ const RecipeSeq = (props: RecipeSeqProps) => {
                         </div>
                         {checkedItems[i] && (<Input 
                         type="text"
-                        placeholder="몇분" 
+                        placeholder="분" 
                         name={`timer_rd_${i + 1}`}
                         onChange={props.handleValueChange}
                         style={{ marginLeft: "1rem", width: "5rem" }} />)}

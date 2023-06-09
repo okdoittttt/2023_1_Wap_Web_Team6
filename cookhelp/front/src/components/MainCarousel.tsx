@@ -1,12 +1,14 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Carousel from "react-material-ui-carousel";
-import { Paper } from '@mui/material'
+import { Paper } from "@mui/material";
 import styled from "styled-components";
 
 const CarouselWrapper = styled.div`
   //align-items: center;
   //justify-content: center;
   width: 60%;
-  margin: auto; 
+  margin: auto;
   margin-top: 50px;
 `;
 
@@ -15,7 +17,7 @@ const CarouselItemImg = styled.img`
   width: 100%;
   //min-width: 400px;
   margin-bottom: -10px;
-  object-fit:cover;
+  object-fit: cover;
 `;
 
 const ItemTitle = styled.h2`
@@ -28,27 +30,109 @@ const ItemText = styled.p`
 `;
 
 const MainCarousel = () => {
-    return (
-      <CarouselWrapper>
-        <Carousel>
-          <Paper>
-            <CarouselItemImg src="https://thumbs.dreamstime.com/b/healthy-food-selection-healthy-food-selection-fruits-vegetables-seeds-superfood-cereals-gray-background-121936825.jpg" />
-            <ItemTitle>완전 건강해 보이는 요리</ItemTitle>
-            <ItemText>완전 건강해 보이는 요리의 레시피입니다. </ItemText>
-          </Paper>
-          <Paper>
-            <CarouselItemImg src="https://www.chickensaladchick.com/assets/mainstage/mainstage-img.jpg" />
-            <ItemTitle>치킨 샐러드 샌드위치</ItemTitle>
-            <ItemText>치킨 샐러드 샌드위치의 레시피입니다. </ItemText>
-          </Paper>
-          <Paper>
-            <CarouselItemImg src="https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?cs=srgb&dl=pexels-chan-walrus-958545.jpg&fm=jpg" />
-            <ItemTitle>커리와 치킨</ItemTitle>
-            <ItemText>치킨 티카 마살라와 탄두치 치킨의 레시피입니다. </ItemText>
-          </Paper>
-        </Carousel>
-      </CarouselWrapper>
-    );
+  const [recipeTitle, setRecipeTitle] = useState<string[]>([]);
+  const [recipeImg, setRecipeImg] = useState<string[]>([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchRecipeCard = async () => {
+      try {
+        const titlePromises = [50, 51, 52].map(async (id) => {
+          const res = await fetch(
+            `http://localhost:8081/board/api/recipehelper/${id}`
+          );
+          const data = await res.json();
+
+          return data.result[0]?.recipe_title || "";
+        });
+
+        const titles = await Promise.all(titlePromises);
+        setRecipeTitle(titles);
+      } catch (error) {
+        console.log("Error!", error);
+      }
+    };
+
+    fetchRecipeCard();
+  }, []);
+
+  useEffect(() => {
+    const fetchRecipeImg = async () => {
+      try {
+        const imgPromises = [50, 51, 52].map(async (id) => {
+          const res = await fetch(
+            `http://localhost:8081/board/api/recipehelperimg/${id}`
+          );
+          const data = await res.json();
+          //console.log(data);
+
+          return data.recipe_img || "";
+        });
+
+        const thumbnail = await Promise.all(imgPromises);
+        console.log(imgPromises);
+        setRecipeImg(thumbnail);
+      } catch (error) {
+        console.log("Error!", error);
+      }
+    };
+    // const fetchRecipeImg = async () => {
+    //   try {
+    //     const response = await fetch(
+    //       `http://localhost:8081/board/api/recipehelperimg/50`
+    //     );
+    //     if (!response.ok) {
+    //       throw new Error("요청이 실패하였습니다.");
+    //     }
+
+    //     const data = await response.json();
+    //     setRecipeImg(data.recipe_img);
+    //   } catch (error) {
+    //     console.error("Error:", error);
+    //   }
+    // };
+
+    fetchRecipeImg();
+  }, []);
+
+  const handlePaperClick = (id: number) => {
+    navigate(`/recipe_detail/${id}`);
   };
 
-  export default MainCarousel;
+  return (
+    <CarouselWrapper>
+      <Carousel>
+        <Paper
+          onClick={() => {
+            handlePaperClick(1);
+          }}
+        >
+          <CarouselItemImg src={`data:image/png;base64, ${recipeImg[0]}`} />
+          <ItemTitle>{recipeTitle[0]}</ItemTitle>
+          <ItemText>{recipeTitle[0]} </ItemText>
+        </Paper>
+        <Paper
+          onClick={() => {
+            handlePaperClick(2);
+          }}
+        >
+          <CarouselItemImg src={`data:image/png;base64, ${recipeImg[1]}`} />
+          <ItemTitle>{recipeTitle[1]}</ItemTitle>
+          <ItemText>{recipeTitle[1]} </ItemText>
+        </Paper>
+        <Paper
+          onClick={() => {
+            handlePaperClick(3);
+          }}
+        >
+          <CarouselItemImg src={`data:image/png;base64, ${recipeImg[2]}`} />
+          {/* <img src={`data:image/png;base64,${recipeImg}`} alt="Backend Image" /> */}
+          <ItemTitle>{recipeTitle[2]}</ItemTitle>
+          <ItemText>{recipeTitle[2]} </ItemText>
+        </Paper>
+      </Carousel>
+    </CarouselWrapper>
+  );
+};
+
+export default MainCarousel;

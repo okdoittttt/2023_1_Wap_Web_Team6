@@ -44,7 +44,7 @@ const RecipeItem = ({
         <ListId>{RecipeId}</ListId>
         <ListTitle>{RecipeTitle}</ListTitle>
         <ListWriter>{RecipeWriter}</ListWriter>
-        <ListDate>{RecipeDate}</ListDate>
+        {RecipeDate && <ListDate>{RecipeDate.slice(0, 10)}</ListDate>}
       </ListWrapper>
     </StyledRecipeItem>
   );

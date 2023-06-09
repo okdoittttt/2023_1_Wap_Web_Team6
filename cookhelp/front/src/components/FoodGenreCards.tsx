@@ -35,9 +35,9 @@ function FoodGenreCards(props: FoodGenreCardsProps) {
             <Typography gutterBottom variant="h5" component="div">
               <CardTitle>{props.genreName}</CardTitle>
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            {/*  <Typography variant="body2" color="text.secondary">
               Sample Paragraph
-            </Typography>
+            </Typography> */}
           </CardContent>
         </CardActionArea>
       </Card>

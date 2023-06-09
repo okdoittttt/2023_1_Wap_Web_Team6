@@ -11,6 +11,8 @@ import BoardRegister from "./pages/BoardRegister";
 import BoardModify from "./pages/BoardModify";
 import Board from "./pages/Board";
 import Mypage from "./pages/Mypage";
+import RecipeDetail from "./pages/RecipeDetail";
+import RecipeModify from "./pages/RecipeModify";
 
 function App() {
   const NotFound = () => {
@@ -24,11 +26,12 @@ function App() {
           <Route path="/" element={<Main />} />
           <Route path="/login" element={<Login />} />
           <Route path="/join" element={<Join />} />
-          {/* {content} */}
-          <Route path="/recipe/:recipe_idx" element={<Recipe />} />
           <Route path="/myPage/:id" element={<Mypage />} />
           <Route path="/recipe_list/:keyword?" element={<RecipeList />} />
           <Route path="/recipe_register" element={<RecipeRegister />} />
+          <Route path="/recipe_modify" element={<RecipeModify />} />
+          <Route path="/recipe_detail/:recipe_idx" element={<RecipeDetail />} />
+          <Route path="/recipe/:recipe_idx" element={<Recipe />} />
           <Route path="/board_list/:keyword?" element={<BoardList />} />
           <Route path="/board_register" element={<BoardRegister />} />
           <Route path="/board_modify" element={<BoardModify />} />

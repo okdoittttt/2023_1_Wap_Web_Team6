@@ -96,6 +96,7 @@ const Recipe = () => {
   const [recipeSteps, setRecipeSteps] = useState<string[]>([]);
   const [Ingredient, setIngredient] = useState<string[]>([]);
   const [cards, setCards] = useState<Card[]>([]);
+  const [imageData, setImageData] = useState<string[]>([]);
 
   const addRecipeStep = (step: string | null) => {
     if (step == null) return;
@@ -109,16 +110,17 @@ const Recipe = () => {
           `http://localhost:8081/board/api/recipehelper/${params.recipe_idx}`
         );
         const data = await res.json();
+        // console.log("data : ", data);
 
         if (!res.ok) {
           console.log("error : ", data.description);
           return;
         }
-        console.log("data : ", data);
-        // console.log("data : ", data.result[0]);
-        setDeck(data.result[0]);
+
+        //데이터 저장
         setIngredient(data.recipeStuffArray);
         updateContent(data.result[0]);
+        setDeck(data.result[0]);
         //slider에 보낼 card 변수
         const newGenerateCard = generateCards(data.result[0]);
         setCards(newGenerateCard);
@@ -126,14 +128,27 @@ const Recipe = () => {
         console.log("Error!", error);
       }
     };
+    const fetchImageDataFromBackend = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8081/board/api/recipehelperimg/${params.recipe_idx}`
+        );
+        if (!response.ok) {
+          throw new Error("요청이 실패하였습니다.");
+        }
+
+        const data = await response.json();
+        // console.log("data : ", data);
+        const tmpImgArray = generateImgArray(data);
+        setImageData(tmpImgArray);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
 
     fetchRecipeHelper();
+    fetchImageDataFromBackend();
   }, []);
-
-  // let SliderContent = <></>;
-  // useEffect(() => {
-  //   SliderContent = <Slider cards={cards} selectIdx={selectIdx} />;
-  // }, [cards, deck]);
 
   const updateContent = (deckData: DeckData) => {
     setRecipeSteps([]);
@@ -166,6 +181,15 @@ const Recipe = () => {
 
     return newCards;
   };
+  const generateImgArray = (data: string[]) => {
+    let newImgArray = [];
+    for (let key in data) {
+      // console.log("key : ", key);
+      if (data.hasOwnProperty(key)) newImgArray.push(data[key]);
+    }
+    // console.log("newImgArray : ", newImgArray);
+    return newImgArray;
+  };
 
   let listContent = recipeSteps.map((step, idx) => (
     <List
@@ -183,16 +207,20 @@ const Recipe = () => {
   // console.log("deck : ", deck);
   // console.log("listContent : ", listContent);
   // console.log(cards);
+  // console.log(imageData);
   return (
-    <div>
+    <>
       <NavBar />
+      {/* {imageData.map((ele) => (
+        <img src={`data:image/png;base64,${ele}`} alt="Backend Image" />
+      ))} */}
       <Wrap>
         <RightSideBar>
           <ListTitle>요리 순서</ListTitle>
           {listContent}
         </RightSideBar>
         <Main>
-          <Slider cards={cards} selectIdx={selectIdx} />
+          <Slider cards={cards} selectIdx={selectIdx} imgCard={imageData} />
           {/* {SliderContent} */}
         </Main>
         <LeftSideBar>
@@ -203,7 +231,7 @@ const Recipe = () => {
       <Footer>
         <RecommendCard />
       </Footer>
-    </div>
+    </>
   );
 };
 

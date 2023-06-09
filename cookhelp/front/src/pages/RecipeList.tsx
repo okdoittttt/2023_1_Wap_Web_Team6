@@ -25,7 +25,6 @@ const StyleSearchLogo = styled.div`
 const LogoImg = styled.img`
   width: 100%;
   cursor: pointer;
-
 `;
 const LogoBox = styled.div`
   display: flex;
@@ -46,7 +45,7 @@ const RegisterBtn = styled(Btn)`
 `;
 const StyleBtnContainer = styled.div`
   position: relative;
-  left: 12rem;
+  /* left: 12rem; */
   top: 4rem;
   display: flex;
   gap: 0.7rem;
@@ -98,10 +97,10 @@ const RecipeList = () => {
         clickedCategory === "전체"
           ? setListData(data)
           : setListData(
-            data.filter(
-              (item: fetchRecipeList) => item.foodstyle === clickedCategory
-            )
-          );
+              data.filter(
+                (item: fetchRecipeList) => item.foodstyle === clickedCategory
+              )
+            );
       } catch (error) {
         console.log("Error!", error);
       }
@@ -128,74 +127,72 @@ const RecipeList = () => {
         console.log("error : ", data.description);
         return;
       }
-      
-      setListData(data);
 
+      setListData(data);
     } catch (error) {
       console.log("Error!", error);
     }
   };
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-      setKeyword(event.target.value);
+    setKeyword(event.target.value);
   };
 
-    return (
-      <>
-        <Navbar />
-        <StyleBtnContainer>
-          {foodStyle.map((elm, idx) => {
+  return (
+    <>
+      <Navbar />
+      <StyleBtnContainer>
+        {foodStyle.map((elm, idx) => {
+          return (
+            <ItemBtn
+              type="button"
+              key={idx}
+              onClick={handleFoodClick}
+              name={elm}
+              isActive={clickedCategory === elm}
+            >
+              {elm}
+            </ItemBtn>
+          );
+        })}
+      </StyleBtnContainer>
+      <RecipeListContainer>
+        <LogoBox>
+          <SearchInput
+            placeholder="레시피 검색"
+            onChange={handleInputChange}
+          ></SearchInput>
+          <StyleSearchLogo>
+            <LogoImg src={searchLogo} onClick={RecipeSearch}></LogoImg>
+          </StyleSearchLogo>
+        </LogoBox>
+        <ListBox>
+          {listData.slice(offset, offset + limit).map((ele: searchData) => {
+            // console.log(ele.recipe_idx);
             return (
-              <ItemBtn
-                type="button"
-                key={idx}
-                onClick={handleFoodClick}
-                name={elm}
-                isActive={clickedCategory === elm}
-              >
-                {elm}
-              </ItemBtn>
+              <RecipeItem
+                key={ele.recipe_idx}
+                to={`/recipe_detail/${ele.recipe_idx}`}
+                RecipeId={ele.recipe_idx}
+                RecipeTitle={ele.recipe_title}
+                RecipeWriter={ele.members}
+                RecipeDate={ele.created_date}
+              />
             );
           })}
-        </StyleBtnContainer>
-        <RecipeListContainer>
-          <LogoBox>
-            <SearchInput placeholder="레시피 검색" onChange={handleInputChange}></SearchInput>
-            <StyleSearchLogo>
-              <LogoImg src={searchLogo}
-                onClick={RecipeSearch}
-              ></LogoImg>
-            </StyleSearchLogo>
-          </LogoBox>
-          <ListBox>
-            {listData
-              .slice(offset, offset + limit)
-              .map((ele: searchData, index: number) => {
-                //const date = ele.created_date.slice(0, 10);
-                return (
-                  <RecipeItem
-                    key={ele.recipe_idx}
-                    to={`/recipe/${index}`}
-                    RecipeId={ele.recipe_idx}
-                    RecipeTitle={ele.recipe_title}
-                    RecipeWriter={ele.members}
-                    RecipeDate={ele.created_date}
-                  />
-                );
-              })}
-          </ListBox>
-          <Pagination
-            totalPage={listData.length}
-            limit={limit}
-            page={page}
-            setPage={setPage}
-          />
-          <RegisterBtn onClick={() => navigate("/recipe_register")}>
-            레시피 등록
-          </RegisterBtn>
-        </RecipeListContainer>
-      </>
-    );
-  };
+        </ListBox>
+        <Pagination
+          totalPage={listData.length}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+        />
+        <RegisterBtn onClick={() => navigate("/recipe_register")}>
+          레시피 등록
+        </RegisterBtn>
+      </RecipeListContainer>
+    </>
+  );
+};
 
 export default RecipeList;

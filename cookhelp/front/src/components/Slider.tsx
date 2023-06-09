@@ -66,26 +66,35 @@ const ArrowForward = ({ onClick }: ArrowButtonProps) => {
   );
 };
 
-const ScreenCard = ({ currentCard }: CardProps) => {
-  const { pic, detail } = currentCard;
-  if (!pic) {
+const ScreenCard = ({ currentCard, img }: CardProps & { img: string }) => {
+  const { detail } = currentCard;
+  if (!img) {
     // console.log("null");
     return <p>이미지가 없습니다</p>;
   }
 
   // console.log("imgSrc : ", pic);
-  const ImgSrc = pic.slice(1);
-  console.log(pic);
+  // const ImgSrc = pic.slice(1);
+  // console.log(img);
   // console.log(`http://localhost:8081/server${ImgSrc}`);
   return (
     <StyledCard>
-      <SlideImg src={`http://localhost:8081/cookhelp/server${ImgSrc}`} />
+      {/* <img src={`data:image/png;base64,${ele}`} alt="Backend Image" /> */}
+      <SlideImg src={`data:image/png;base64, ${img}`} />
       <p>{detail}</p>
     </StyledCard>
   );
 };
 
-const Slider = ({ cards, selectIdx }: { cards: Card[]; selectIdx: number }) => {
+const Slider = ({
+  cards,
+  selectIdx,
+  imgCard,
+}: {
+  cards: Card[];
+  selectIdx: number;
+  imgCard: string[];
+}) => {
   // const { RecipeName, cards } = recipeList;
   const { card, cardIdx, goForward, goBack } = useSliderCard(cards, selectIdx);
 
@@ -103,7 +112,10 @@ const Slider = ({ cards, selectIdx }: { cards: Card[]; selectIdx: number }) => {
           <Dictaphone goForward={goForward} goBack={goBack} />
           <ImgBox>
             <ArrowBack onClick={goBack} />
-            <ScreenCard currentCard={card[cardIdx]} />
+            <ScreenCard
+              currentCard={card[cardIdx]}
+              img={imgCard[cardIdx + 1]}
+            />
             <ArrowForward onClick={goForward} />
           </ImgBox>
           <CardIdx>

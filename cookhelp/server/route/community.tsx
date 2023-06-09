@@ -97,7 +97,7 @@ router.get("/api/board/:board_idx", (req, res) => {
     // const recipe_idx = 1;
     const board_idx = req.params.board_idx;
 
-    const sqlQuery = `SELECT *, DATE_FORMAT(create_date, '%Y-%m-%d') AS create_date FROM board WHERE board_idx = '${board_idx}';`;
+    const sqlQuery = `SELECT *, DATE_FORMAT(create_date, '%Y-%m-%d/%H:%i') AS create_date FROM board WHERE board_idx = '${board_idx}';`;
     db.query(sqlQuery, (err, result) => {
         if (err) {
             console.log("데이터 조회 오류", err);

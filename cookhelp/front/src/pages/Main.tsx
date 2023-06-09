@@ -3,7 +3,8 @@ import styled from "styled-components";
 import MainCarousel from "../components/MainCarousel";
 import RecommendCard from "../components/RecommendCard";
 
-localStorage.setItem('isLogin', "False");
+//...^^
+// localStorage.setItem('isLogin', "False");
 // const CardSlide = () => {
 //   return (
 //     <SlideWrapper>

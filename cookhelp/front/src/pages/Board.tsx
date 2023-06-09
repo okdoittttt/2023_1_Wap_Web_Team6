@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import NavBar from "../components/NavBar";
 import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import CommentItem from "../components/CommentItem";
+import { cmtData } from "../components/type";
 import { useNavigate } from "react-router-dom";
+import "../css/cmt.css";  
 
 const Wrap = styled.div`
   margin-top: 2rem;
@@ -30,7 +32,6 @@ const PostView  = styled.div`
 const ContentView  = styled.div`
   margin: 10px 0;
   display: flex;
-  border-top:3px solid white;
 `;
 
 const PostView1 = styled.label`
@@ -52,7 +53,8 @@ const ModifyButton = styled.button`
   border: none;
   border-radius: 5px;
   font-size: 18px;
-  margin-left: 65%;
+  margin-left: 10%;
+  margin-top: 3%;
 `;
 
 const DeleteButton = styled.button`
@@ -82,7 +84,7 @@ const Main = styled.div`
   width: 80%;
 `;
 
-const Recipe = () => {
+const Board = () => {
   const params = useParams();
   // console.log(params.recipe_idx);
 
@@ -91,13 +93,78 @@ const Recipe = () => {
     board_idx: params.board_idx
   });
 
+  const [registerCmtData, setRegisterCmtData] = useState({
+    CmtContent: "", // 게시판 제목
+    CmtPassword: "", // 내용
+    board_idx: params.board_idx,  
+    members: localStorage.getItem('loginId') // 내용
+  });
+
+  const handleValueChange = (
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLTextAreaElement>
+      | React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setRegisterCmtData({
+      ...registerCmtData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+
   const [board_idx, setboard_idx] = useState<string>("");
   const [title, settitle] = useState();
   const [content, setcontent] = useState<string>("")
   const [members, setmembers] = useState<string>("")
   const [boardstyle, setboardstyle] = useState();
   const [create_date, setcreate_date] = useState();
+  const [listData, setListData] = useState([]);
   const navigate = useNavigate();
+
+  const fetchData = async () => {
+    try {
+      const res = await fetch(`http://localhost:8081/comments/api/cmtList/${params.board_idx}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.log("error : ", data.description);
+        return;
+      }
+      console.log("data : ", data);
+        setListData(data)
+    } catch (error) {
+      console.log("Error!", error);
+    }
+  };
+
+  const fetchRecipeHelper = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:8081/community/api/board/${params.board_idx}`
+      );
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.log("error : ", data.description);
+        return;
+      }
+      // console.log("data : ", data.result[0]);
+      setboard_idx(data[0].board_idx);
+      settitle(data[0].title);
+      setcontent(data[0].content);
+      setmembers(data[0].members);
+      setboardstyle(data[0].boardstyle);
+      setcreate_date(data[0].create_date);
+    } catch (error) {
+      console.log("Error!", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecipeHelper();
+    fetchData();
+  }, []);
 
   const deleteBtnClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
     e.preventDefault(); // 버튼 클릭의 기본 동작 중지
@@ -144,33 +211,30 @@ const Recipe = () => {
         console.error(` Err: ${err}`);
     })
   };
-
-    useEffect(() => {
-      const fetchRecipeHelper = async () => {
-        try {
-          const res = await fetch(
-            `http://localhost:8081/community/api/board/${params.board_idx}`
-          );
-          const data = await res.json();
-
-          if (!res.ok) {
-            console.log("error : ", data.description);
-            return;
+    const cmtbtnClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
+      e.preventDefault(); // 버튼 클릭의 기본 동작 중지
+      fetch("http://localhost:8081/comments/api/upload", {
+        method: "post", // method :통신방법
+        headers: {
+          // headers: API 응답에 대한 정보를 담음
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(registerCmtData), //join 객체를 보냄
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.isSuccess === "True") {
+            setRegisterCmtData({ ...registerCmtData, CmtContent: "", CmtPassword: "" }); // CmtContent 초기화
+            fetchData();
+          } else {
+            alert(data.isSuccess);
           }
-          // console.log("data : ", data.result[0]);
-          setboard_idx(data[0].board_idx);
-          settitle(data[0].title);
-          setcontent(data[0].content);
-          setmembers(data[0].members);
-          setboardstyle(data[0].boardstyle);
-          setcreate_date(data[0].create_date);
-        } catch (error) {
-          console.log("Error!", error);
-        }
-      };
+        }).catch(function(err) {
+          console.error(` Err: ${err}`);
+      })
+    }
 
-      fetchRecipeHelper();
-    }, []);
+
   return (
     <div>
     <NavBar />
@@ -210,10 +274,40 @@ const Recipe = () => {
         <ModifyButton onClick={modifyBtnClick}>게시글 수정</ModifyButton>
         <DeleteButton onClick={deleteBtnClick}>게시글 삭제</DeleteButton>
         <ListButton onClick={() => navigate("/board_list")}>목록 돌아가기</ListButton>
+        <ul className = 'comment'>
+        <li> 
+          <form>  
+               <span className='ps-box'>
+                  <input onChange={handleValueChange} value={registerCmtData.CmtContent} type='text' name= "CmtContent" className='CmtContent' placeholder='write comment'/>
+               </span>
+               <span className='ps-box'>
+                  <input onChange={handleValueChange} value={registerCmtData.CmtPassword} type='text' name= "CmtPassword" className='CmtPassword' placeholder='비밀번호' />
+               </span>
+               <button className='btn' onClick={cmtbtnClick}>작성하기</button>
+            </form>
+         </li>
+
+            {listData
+              .map((ele: cmtData) => {
+                //const date = ele.created_date.slice(0, 10);
+                return (
+                  <CommentItem
+                    key={ele.comments_idx}
+                    Cmtidx={ele.comments_idx}
+                    CmtComment={ele.comments_content}
+                    CmtWriter={ele.members}
+                    CmtDate={ele.create_date}
+                    CmtPassword={ele.pwd}
+                    BoardIdx={ele.board_idx}
+                  /> 
+                );
+                
+              })}
+         </ul>
         </Main>
       </Wrap>
     </div>
   );
 };
 
-export default Recipe;
+export default Board;

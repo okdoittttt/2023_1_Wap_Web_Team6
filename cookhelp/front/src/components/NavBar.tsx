@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from 'react';
+import { useEffect } from "react";
+import { AuthContext } from "../hooks/AuthContext";
+import { TapContext } from "../hooks/TapContext";
 
 type TabProps = {
   isActive: boolean;
@@ -55,86 +57,57 @@ const AuthButton = styled.button`
   font-size: 18px;
 `;
 
-
-
 const Navbar = () => {
+  const { setIsLogin } = useContext(AuthContext);
   const [activeMenuItem, setActiveMenuItem] = useState(0); // 현재 활성화된 메뉴 아이템의 인덱스를 상태로 관리
   const [mode, setMode] = useState("");
-  
+  const { tapItem, setTapItem } = useContext(TapContext);
+
   const handleBtnClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    localStorage.setItem('isLogin', "False");
-    localStorage.setItem('loginId', "");
-    alert("로그아웃 완료 되었습니다!")
+    localStorage.setItem("isLogin", "False");
+    localStorage.setItem("loginId", "");
+    alert("로그아웃 완료 되었습니다!");
+    setIsLogin(false);
     setMode("LOGIN");
-    // e.preventDefault(); // 버튼 클릭의 기본 동작 중지
-    // fetch("http://localhost:8081/members/api/logout", {
-    //   //auth 주소에서 받을 예정
-    //   method: "post", // method :통신방법
-    //   headers: {
-    //     // headers: API 응답에 대한 정보를 담음
-    //     "content-type": "application/json",
-    //   }
-    // })
-    //   .then(res => res.json())
-    //   .then(data => {
-    //     console.log('click')
-    //     if(data.isLogout==="True"){
-    //       alert('로그아웃 완료되었습니다!')
-    //       navigate("/");
-    //     }
-    //     else{
-    //       console.log(data)
-    //       alert(data.isLogin)
-    //     }
-    //   })
-    //   .catch(error => console.log("error =>", error))
   };
 
   const navigate = useNavigate();
-  const id = localStorage.getItem('loginId')
+  const id = localStorage.getItem("loginId");
   useEffect(() => {
-    if(localStorage.getItem('isLogin') === "True"){
-      setMode("WELCOME")
-    } else{
-      setMode("LOGIN")
+    if (localStorage.getItem("loginId") !== "") {
+      setMode("WELCOME");
+    } else {
+      localStorage.setItem("loginId", "");
+      setMode("LOGIN");
     }
-  //   fetch("http://localhost:8081/members/api/authcheck", {credentials: 'include'})
-  //     .then((res) => res.json())
-  //     .then((data) => {        
-  //       localStorage.setItem('sessionID', data.sessionID);
-  //       console.log()
-  //       if (data.isLogin === "True") {
-  //         console.log('hello')
-  //         setMode("WELCOME");
-  //         console.log(data)
-  //       }
-  //       else {
-  //         console.log(data)
-  //         setMode("LOGIN");
-  //       }
-  //     });
-  }, []); 
+  }, []);
 
+  let content: any = null;
 
-  let content:any = null;  
-
-
-  if(mode==="LOGIN"){
-    content = <>
-    <AuthButton onClick={() => navigate("/login")}>로그인</AuthButton> 
-    <AuthButton onClick={() => navigate("/Join")}>회원가입</AuthButton>
-    </>
-  }
-  else if (mode === 'WELCOME') {
-    content = <>
-    <AuthButton onClick={() => navigate(`/myPage/${id}`)}>{id}</AuthButton>
-    <AuthButton onClick={handleBtnClick}>로그아웃</AuthButton>
-    </>
+  if (mode === "LOGIN") {
+    content = (
+      <>
+        <AuthButton onClick={() => navigate("/login")}>로그인</AuthButton>
+        <AuthButton onClick={() => navigate("/Join")}>회원가입</AuthButton>
+      </>
+    );
+  } else if (mode === "WELCOME") {
+    content = (
+      <>
+        <AuthButton onClick={() => navigate(`/myPage/${id}`)}>{id}</AuthButton>
+        <AuthButton onClick={handleBtnClick}>로그아웃</AuthButton>
+      </>
+    );
   }
 
   const handleMenuItemClick = (menuItemIndex: number) => {
     setActiveMenuItem(menuItemIndex);
+    setTapItem(menuItemIndex);
   };
+
+  useEffect(() => {
+    if (tapItem !== 0) setActiveMenuItem(tapItem);
+  }, []);
 
   return (
     <NavbarWrapper>
@@ -168,9 +141,7 @@ const Navbar = () => {
         </MenuItem>
       </MenuWrapper>
 
-      <AuthButtonsWrapper>
-        {content}
-      </AuthButtonsWrapper>
+      <AuthButtonsWrapper>{content}</AuthButtonsWrapper>
     </NavbarWrapper>
   );
 };

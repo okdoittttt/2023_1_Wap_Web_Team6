@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Navbar from "../components/NavBar";
 import Container from "../UI/Container";
 import { Link } from "react-router-dom";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Title = styled.h2`
   font-size: 1.5rem;
@@ -115,8 +115,8 @@ const Join = () => {
   const [checkPassword, setCheckPassword] = useState(false);
   const [name, setName] = useState(false);
   const [selectFood, setSelectFood] = useState(false);
+
   const navigate = useNavigate();
-  const { state } = useLocation();
 
   //영문자로 시작하는 영문자 또는 숫자 6~20자
   const isId = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -184,17 +184,18 @@ const Join = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.isSuccess === "True") {
-          localStorage.setItem('isLogin', data.isLogin);
-          localStorage.setItem('loginId', data.loginId);
+          localStorage.setItem("isLogin", data.isLogin);
+          localStorage.setItem("loginId", data.loginId);
           alert("회원가입이 완료되었습니다!");
           console.log("회원가입완료!");
           navigate("/");
         } else {
           alert(data.isSuccess);
         }
-      }).catch(function(err) {
+      })
+      .catch(function (err) {
         console.error(` Err: ${err}`);
-    })
+      });
   };
 
   return (

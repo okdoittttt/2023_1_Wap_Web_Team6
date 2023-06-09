@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import styled from "styled-components";
 import Navbar from "../components/NavBar";
 import Container from "../UI/Container";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../hooks/AuthContext";
 
 const Title = styled.h2`
   font-size: 24px;
@@ -64,6 +64,8 @@ const ErrorMsg = styled.p`
 `;
 
 const Login = () => {
+  const { setIsLogin } = useContext(AuthContext);
+
   const [login, setLogin] = useState({
     loginId: "",
     loginPassword: "",
@@ -117,9 +119,13 @@ const Login = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.isLogin === "True") {
+          // localStorage.clear();
+          // console.log(data);
           localStorage.setItem("isLogin", data.isLogin);
           localStorage.setItem("loginId", data.loginId);
+          // localStorage.setItem("token", data.token);
           alert("로그인 완료되었습니다!");
+          setIsLogin(true);
           navigate("/");
         } else {
           console.log(data);
